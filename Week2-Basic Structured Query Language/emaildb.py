@@ -7,7 +7,7 @@ cur.execute('''
 DROP TABLE IF EXISTS Counts''')
 
 cur.execute('''
-CREATE TABLE Counts (email TEXT, count INTEGER)''')
+CREATE TABLE Counts (org TEXT, count INTEGER)''')
 
 fname = 'mbox.txt'
 fh = open(fname)
@@ -16,27 +16,28 @@ for line in fh:
         continue
     pieces = line.split()
     email = pieces[1]
-    print(email)
-    sql = "SELECT count FROM Counts WHERE email = '{mail}'"
-    cur.execute(sql.format(mail=email))
+    org = email[email.index('@')+1:]
+    print(org)
+    sql = "SELECT count FROM Counts WHERE org = '{org}'"
+    cur.execute(sql.format(org=org))
     row = cur.fetchone()
     if row is None:
         sql = (
-            "INSERT INTO Counts (email, count)"
-            "VALUES ( '{mail}', 1 )"
+            "INSERT INTO Counts (org, count)"
+            "VALUES ( '{org}', 1 )"
             )
-        cur.execute(sql.format(mail=email))
+        cur.execute(sql.format(org=org))
     else:
-        sql = "UPDATE Counts SET count=count+1 WHERE email = '{mail}'"
-        cur.execute(sql.format(mail=email))
+        sql = "UPDATE Counts SET count=count+1 WHERE org = '{org}'"
+        cur.execute(sql.format(org=org))
 
     conn.commit()
 
-sqlstr = 'SELECT email, count FROM Counts ORDER BY count DESC LIMIT 10'
+sqlstr = 'SELECT org, count FROM Counts ORDER BY count DESC LIMIT 10'
 
 print("Counts:")
 for row in cur.execute(sqlstr):
     print(str(row[0]), row[1])
 
 cur.close()
-print('email check finish!')
+print('org check finish!')
